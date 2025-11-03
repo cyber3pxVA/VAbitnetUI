@@ -37,3 +37,5 @@ vosk-model-*/
 # Temporary files
 *.tmp
 *.temp
+bitnet_backend/3rdparty/llama.cpp/
+nul

@@ -58,7 +58,8 @@ class ChatWorker(QObject):
             self._message,
             callback_status=lambda msg: self.status_update.emit(msg)
         )
-        self.finished.emit(response.success, response.message, response.error or "")
+        error_str = response.error.message if response.error else ""
+        self.finished.emit(response.success, response.message, error_str)
 
 
 class MainWindow(QMainWindow):
@@ -94,8 +95,13 @@ class MainWindow(QMainWindow):
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
             "assets", "sounds", "goat_scream.wav"
         )
-        self._goat_sound.setSource(QUrl.fromLocalFile(goat_sound_path))
-        self._goat_sound.setVolume(0.5)
+        # Only set source if file exists
+        if os.path.exists(goat_sound_path):
+            self._goat_sound.setSource(QUrl.fromLocalFile(goat_sound_path))
+            self._goat_sound.setVolume(0.5)
+        else:
+            # Disable goat sound if file doesn't exist
+            self._goat_sound = None
         
         # Connect internal signals to UI update slots
         self._partial_received.connect(self._update_partial_display)
@@ -133,7 +139,7 @@ class MainWindow(QMainWindow):
         # Voice transcription tab (second)
         voice_tab = QWidget()
         voice_layout = QHBoxLayout(voice_tab)
-        voice_layout.setContentsMargins(16, 16, 16, 16)
+        voice_layout.setContentsMargins(12, 12, 12, 12)
         
         left_panel = self._create_input_panel()
         voice_layout.addLayout(left_panel, stretch=3)
@@ -150,7 +156,7 @@ class MainWindow(QMainWindow):
     def _create_input_panel(self) -> QVBoxLayout:
         """Create left input panel."""
         layout = QVBoxLayout()
-        layout.setSpacing(12)
+        layout.setSpacing(8)
         
         # Title
         title = QLabel("Voice Recording")
@@ -165,7 +171,7 @@ class MainWindow(QMainWindow):
         self._prompt_input.setPlaceholderText(
             "Enter custom instructions for note processing..."
         )
-        self._prompt_input.setMaximumHeight(80)
+        self._prompt_input.setMaximumHeight(60)
         layout.addWidget(self._prompt_input)
         
         # Partial transcription
@@ -174,7 +180,7 @@ class MainWindow(QMainWindow):
         
         self._partial_display = QTextEdit()
         self._partial_display.setReadOnly(True)
-        self._partial_display.setMaximumHeight(60)
+        self._partial_display.setMaximumHeight(50)
         layout.addWidget(self._partial_display)
         
         # Full transcription
@@ -183,11 +189,13 @@ class MainWindow(QMainWindow):
         
         self._transcript_display = QTextEdit()
         self._transcript_display.setReadOnly(True)
+        self._transcript_display.setMinimumHeight(150)
         layout.addWidget(self._transcript_display)
         
         # Status
         self._status_label = QLabel("Ready")
         self._status_label.setProperty("status", True)
+        self._status_label.setMaximumHeight(20)
         layout.addWidget(self._status_label)
         
         # Control buttons
@@ -214,7 +222,7 @@ class MainWindow(QMainWindow):
     def _create_output_panel(self) -> QVBoxLayout:
         """Create right output panel."""
         layout = QVBoxLayout()
-        layout.setSpacing(12)
+        layout.setSpacing(8)
         
         # Title
         title = QLabel("Generated Notes")
@@ -224,10 +232,12 @@ class MainWindow(QMainWindow):
         # Output display
         self._output_display = QTextEdit()
         self._output_display.setReadOnly(True)
+        self._output_display.setMinimumHeight(200)
         layout.addWidget(self._output_display)
         
         # Copy button
-        copy_button = QPushButton("Copy to Clipboard")
+        copy_button = QPushButton("Copy")
+        copy_button.setMaximumHeight(32)
         copy_button.clicked.connect(self._copy_output)
         layout.addWidget(copy_button)
         
@@ -237,48 +247,56 @@ class MainWindow(QMainWindow):
         """Create chat interface tab."""
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(12)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
         
-        # Title
+        # Title - smaller
         title = QLabel("Chat with BitNet")
         title.setProperty("heading", True)
         layout.addWidget(title)
         
-        # Chat history display
+        # Chat history display - fixed height
         self._chat_display = QTextEdit()
         self._chat_display.setReadOnly(True)
-        layout.addWidget(self._chat_display)
+        self._chat_display.setMinimumHeight(280)
+        self._chat_display.setMaximumHeight(350)
+        layout.addWidget(self._chat_display, stretch=1)
         
-        # Status label for chat
+        # Status label for chat - compact
         self._chat_status_label = QLabel("Ready")
         self._chat_status_label.setProperty("status", True)
+        self._chat_status_label.setMaximumHeight(20)
         layout.addWidget(self._chat_status_label)
         
-        # Input area
+        # Input area - prominent and visible
         input_layout = QHBoxLayout()
         input_layout.setSpacing(8)
         
         self._chat_input = QLineEdit()
-        self._chat_input.setPlaceholderText("Type your message here...")
+        self._chat_input.setPlaceholderText("Type your message and press Enter...")
+        self._chat_input.setMinimumHeight(32)
         self._chat_input.returnPressed.connect(self._send_chat_message)
-        input_layout.addWidget(self._chat_input)
+        input_layout.addWidget(self._chat_input, stretch=1)
         
         self._chat_send_button = QPushButton("Send")
+        self._chat_send_button.setMinimumHeight(32)
+        self._chat_send_button.setMinimumWidth(80)
         self._chat_send_button.clicked.connect(self._send_chat_message)
         input_layout.addWidget(self._chat_send_button)
         
         layout.addLayout(input_layout)
         
-        # Action buttons
+        # Action buttons - compact
         button_layout = QHBoxLayout()
         button_layout.setSpacing(8)
         
-        clear_chat_button = QPushButton("Clear History")
+        clear_chat_button = QPushButton("Clear")
+        clear_chat_button.setMaximumWidth(100)
         clear_chat_button.clicked.connect(self._clear_chat)
         button_layout.addWidget(clear_chat_button)
         
-        copy_chat_button = QPushButton("Copy Chat")
+        copy_chat_button = QPushButton("Copy")
+        copy_chat_button.setMaximumWidth(100)
         copy_chat_button.clicked.connect(self._copy_chat)
         button_layout.addWidget(copy_chat_button)
         
@@ -291,45 +309,55 @@ class MainWindow(QMainWindow):
         """Create settings interface tab."""
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(12)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
+        
+        # Scrollable content
+        from PyQt6.QtWidgets import QScrollArea
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setSpacing(8)
         
         # Title
         title = QLabel("BitNet Settings")
         title.setProperty("heading", True)
-        layout.addWidget(title)
+        scroll_layout.addWidget(title)
         
-        # BitNet status indicator
+        # BitNet status indicator - compact
         status_group = QGroupBox("Connection Status")
         status_layout = QVBoxLayout()
+        status_layout.setSpacing(4)
         
         self._bitnet_status_label = QLabel("Checking...")
         self._bitnet_status_label.setProperty("status", True)
         status_layout.addWidget(self._bitnet_status_label)
         
         check_button = QPushButton("Check BitNet Status")
+        check_button.setMaximumHeight(28)
         check_button.clicked.connect(self._check_bitnet_status)
         status_layout.addWidget(check_button)
         
         status_group.setLayout(status_layout)
-        layout.addWidget(status_group)
+        scroll_layout.addWidget(status_group)
         
-        # Connection settings
+        # Connection settings - compact
         conn_group = QGroupBox("Connection")
         conn_layout = QFormLayout()
-        conn_layout.setSpacing(8)
+        conn_layout.setSpacing(6)
         
         self._endpoint_input = QLineEdit()
         self._endpoint_input.setText(self._config.bitnet.endpoint_url if self._config.bitnet else "http://localhost:8081/completion")
         conn_layout.addRow("Endpoint URL:", self._endpoint_input)
         
         conn_group.setLayout(conn_layout)
-        layout.addWidget(conn_group)
+        scroll_layout.addWidget(conn_group)
         
-        # Inference settings
+        # Inference settings - compact
         inference_group = QGroupBox("Inference Parameters")
         form_layout = QFormLayout()
-        form_layout.setSpacing(12)
+        form_layout.setSpacing(6)
         
         # Max tokens
         self._max_tokens_spin = QSpinBox()
@@ -386,23 +414,24 @@ class MainWindow(QMainWindow):
         form_layout.addRow("Top K:", self._top_k_spin)
         
         inference_group.setLayout(form_layout)
-        layout.addWidget(inference_group)
+        scroll_layout.addWidget(inference_group)
         
-        # System prompt
+        # System prompt - compact
         prompt_label = QLabel("System Prompt for Notes:")
-        layout.addWidget(prompt_label)
+        scroll_layout.addWidget(prompt_label)
         
         self._system_prompt_edit = QTextEdit()
         self._system_prompt_edit.setPlaceholderText("Enter system prompt for note generation...")
         self._system_prompt_edit.setText(self._config.bitnet.system_prompt if self._config.bitnet else "")
-        self._system_prompt_edit.setMaximumHeight(120)
-        layout.addWidget(self._system_prompt_edit)
+        self._system_prompt_edit.setMaximumHeight(80)
+        scroll_layout.addWidget(self._system_prompt_edit)
         
-        # Goat settings
+        # Goat settings - compact
         goat_group = QGroupBox("🐐 Goat Settings")
         goat_layout = QVBoxLayout()
+        goat_layout.setSpacing(4)
         
-        # Goat image
+        # Goat image - smaller
         goat_image_label = QLabel()
         goat_image_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
@@ -410,7 +439,7 @@ class MainWindow(QMainWindow):
         )
         if os.path.exists(goat_image_path):
             pixmap = QPixmap(goat_image_path)
-            scaled_pixmap = pixmap.scaled(72, 72, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             goat_image_label.setPixmap(scaled_pixmap)
             goat_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             goat_layout.addWidget(goat_image_label)
@@ -427,19 +456,23 @@ class MainWindow(QMainWindow):
         goat_layout.addWidget(goat_info)
         
         goat_group.setLayout(goat_layout)
-        layout.addWidget(goat_group)
+        scroll_layout.addWidget(goat_group)
         
         # Apply button
         apply_button = QPushButton("Apply Settings")
+        apply_button.setMaximumHeight(32)
         apply_button.clicked.connect(self._apply_settings)
-        layout.addWidget(apply_button)
+        scroll_layout.addWidget(apply_button)
         
         # Info label
         info_label = QLabel("Note: Settings apply to new requests only.")
         info_label.setProperty("status", True)
-        layout.addWidget(info_label)
+        scroll_layout.addWidget(info_label)
         
-        layout.addStretch()
+        scroll_layout.addStretch()
+        
+        scroll.setWidget(scroll_content)
+        layout.addWidget(scroll)
         
         return widget
     
@@ -638,7 +671,7 @@ class MainWindow(QMainWindow):
             self._status_label.setText(f"✅ Complete ({time_ms:.0f}ms)")
             self._status_label.setStyleSheet("color: #2D5016;")
             # Play goat scream on successful note generation (if enabled)
-            if self._config.ui.goat_sound_enabled:
+            if self._config.ui.goat_sound_enabled and self._goat_sound is not None:
                 self._goat_sound.play()
         else:
             self._show_error("Processing Error", result.error_message or "Unknown error")
@@ -712,7 +745,7 @@ class MainWindow(QMainWindow):
             self._chat_status_label.setText("✅ Ready")
             self._chat_status_label.setStyleSheet("color: #2D5016;")
             # Play goat scream on successful chat response (if enabled)
-            if self._config.ui.goat_sound_enabled:
+            if self._config.ui.goat_sound_enabled and self._goat_sound is not None:
                 self._goat_sound.play()
         else:
             self._show_error("Chat Error", error)
@@ -778,7 +811,8 @@ class MainWindow(QMainWindow):
             self._bitnet_status_label.setText(f"✅ Connected to {endpoint}")
             self._bitnet_status_label.setStyleSheet("color: #2D5016;")
         else:
-            self._bitnet_status_label.setText(f"❌ {error or 'Not available'}")
+            error_msg = f"❌ {error or 'Not available'}\n\nTo start BitNet backend:\n1. Open terminal\n2. cd bitnet_backend\n3. Build and run the server (see INSTALL_VA_WORKSTATION.md)"
+            self._bitnet_status_label.setText(error_msg)
             self._bitnet_status_label.setStyleSheet("color: #C41E3A;")
     
     def _toggle_goat_sound(self, state: int) -> None:

@@ -38,7 +38,7 @@ class VoskConfig:
     @property
     def model_path(self) -> Path:
         """Resolve model path."""
-        base = self.model_base_path or Path.cwd()
+        base = self.model_base_path or (Path.cwd() / "models")
         return base / self.model_name
     
     def validate(self) -> bool:
@@ -59,7 +59,7 @@ class BitNetConfig:
     endpoint_url: str = "http://localhost:8081/completion"
     max_tokens: int = 2048
     temperature: float = 0.7
-    timeout_seconds: float = 30.0
+    timeout_seconds: float = 60.0
 
     # Advanced parameters
     repeat_penalty: float = 1.15
@@ -69,14 +69,17 @@ class BitNetConfig:
 
     # System prompt for note generation
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
+
+
 @dataclass
 class UIConfig:
     """User interface configuration."""
 
     window_title: str = "VOSK BitNet Scribe"
-    window_width: int = 1200
-    window_height: int = 800
-    font_size: int = 14
+    window_width: int = 800
+    window_height: int = 550
+    font_size: int = 11
+    goat_sound_enabled: bool = True
     
     # Braun-inspired color palette
     background: str = "#F5F5F5"  # Clean light gray

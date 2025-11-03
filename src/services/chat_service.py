@@ -107,17 +107,17 @@ class ChatService:
         context = self._build_context()
         
         # Construct prompt
-        prompt = f"{context}\\n\\nUser: {message}\\nAssistant:"
+        prompt = f"{context}\n\nUser: {message}\nAssistant:"
         
         payload = {
             "prompt": prompt,
-            "n_predict": self._config.max_tokens,
+            "n_predict": 100,  # Fast chat responses (8-10 seconds)
             "temperature": self._config.temperature,
             "repeat_penalty": self._config.repeat_penalty,
             "repeat_last_n": self._config.repeat_last_n,
             "top_p": self._config.top_p,
             "top_k": self._config.top_k,
-            "stop": ["\\nUser:", "\\n\\n", "\\nYou:", "\\nQuestion:"],
+            "stop": ["\nUser:", "\n\n", "\nYou:", "\nQuestion:", "User:", "Assistant:"],
             "stream": False
         }
         
@@ -160,7 +160,7 @@ class ChatService:
             role = msg.role.capitalize()
             lines.append(f"{role}: {msg.content}")
         
-        return "\\n".join(lines)
+        return "\n".join(lines)
     
     def clear_history(self) -> None:
         """Clear conversation history."""

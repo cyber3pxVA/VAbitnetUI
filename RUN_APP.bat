@@ -16,12 +16,19 @@ if not exist "venv" (
 
 REM Activate venv and run
 call venv\Scripts\activate.bat
-python main.py
+python main.py 2>&1
+
+REM Show exit code for debugging
+echo.
+echo Exit code: %errorlevel%
 
 REM Keep window open if there's an error
 if errorlevel 1 (
     echo.
     echo The application closed with an error.
     echo Check the error message above.
+    pause
+) else (
+    echo Application closed normally.
     pause
 )

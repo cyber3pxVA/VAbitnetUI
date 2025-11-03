@@ -1,0 +1,54 @@
+# Extensions
+
+*.a
+*.bat
+# *.bin - REMOVED SO MODEL FILES ARE INCLUDED
+*.dll
+*.dot
+*.etag
+*.exe
+*.gcda
+*.gcno
+*.gcov
+# *.gguf - REMOVED SO MODEL FILES ARE INCLUDED
+*.gguf.json
+*.lastModified
+*.log
+*.metallib
+*.o
+*.so
+*.tmp
+
+# IDE / OS
+
+.cache/
+.ccls-cache/
+.direnv/
+.DS_Store
+.envrc
+.idea/
+.swiftpm
+.vs/
+.vscode/
+nppBackup
+
+# Models
+# models/* - REMOVED SO MODELS ARE INCLUDED IN REPO
+gpu/checkpoints/*
+
+# Python
+
+/.venv
+venv/
+__pycache__/
+*/poetry.lock
+poetry.toml
+
+build/
+build_*/
+tools/
+logs/
+# CRITICAL DOCUMENTATION - DO NOT IGNORE
+# These files contain institutional knowledge for VA deployment
+!VA_WORKSTATION_SETUP.md
+!INSTALL_VA_WORKSTATION.md

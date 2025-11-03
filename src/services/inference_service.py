@@ -52,7 +52,7 @@ class InferenceService:
         # Build prompt
         system_prompt = self._config.system_prompt
         user_prompt = request.custom_prompt or "Convert this transcript into clear notes:"
-        full_prompt = f"{system_prompt}\\n\\n{user_prompt}\\n\\nTranscript:\\n{request.transcript}"
+        full_prompt = f"{system_prompt}\n\n{user_prompt}\n\nTranscript:\n{request.transcript}"
         
         try:
             if callback_status:
@@ -67,7 +67,7 @@ class InferenceService:
                 "repeat_last_n": self._config.repeat_last_n,
                 "top_p": self._config.top_p,
                 "top_k": self._config.top_k,
-                "stop": ["\\n\\nYou:", "\\nUser:", "\\nQuestion:"],
+                "stop": ["\n\nYou:", "\nUser:", "\nQuestion:"],
                 "stream": False
             }
             
