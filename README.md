@@ -1,14 +1,18 @@
-# VAbitnetUI - BitNet with GUI for VA Workstations
+# VAbitnetUI - BitNet 1.58-bit LLM for VA Workstations
 
-A comprehensive BitNet 1.58-bit LLM application with GUI specifically designed for **Windows VA workstation environments**. Combines Microsoft's BitNet inference engine with a clean, modular GUI interface featuring voice transcription via VOSK speech recognition, text-based chat, and local AI inference optimized for CPU-only operation with VHA-compliant portable tools.
+A complete offline-capable BitNet 1.58-bit LLM deployment for **Windows VA workstation environments**. Provides local AI inference with multiple interfaces (web UI, command line, and optional Python GUI) optimized for CPU-only operation with VHA-compliant portable tools.
 
 ## 🎯 Project Overview
 
-This project combines two powerful components for VA deployment:
-1. **BitNet Backend** ([VAbitnet_i2](https://github.com/cyber3pxVA/VAbitnet_i2)) - Microsoft's BitNet 1.58-bit LLM inference engine with VHA-compliant toolchain
-2. **GUI Frontend** ([VAbitnetscribe](https://github.com/cyber3pxVA/VAbitnetscribe)) - Modular speech-to-text and chat interface
+This project provides Microsoft's BitNet 1.58-bit LLM inference engine with VHA-compliant toolchain for VA deployment.
 
-**Result**: A complete offline-capable AI assistant with voice and text interaction, specifically optimized for VA Windows workstation environments using portable MinGW/MSVC toolchain.
+**Primary Interface**: Built-in web UI at `http://127.0.0.1:8081` (accessed via browser)
+
+**Optional Interfaces**:
+- Python GUI with voice transcription (VOSK-based speech recognition)
+- Command-line interface (`llama-cli.exe`)
+
+**Result**: A complete offline-capable AI assistant specifically optimized for VA Windows workstation environments using portable MinGW/MSVC toolchain.
 
 ## ⚠️ VA Workstation Requirements
 
@@ -21,12 +25,13 @@ This project combines two powerful components for VA deployment:
 
 ## ✨ Features
 
-- 🎤 **Voice Transcription**: VOSK-based speech recognition (offline capable)
+- � **Built-in Web UI**: Access via browser at http://127.0.0.1:8081 (primary interface)
 - 💬 **Text Chat**: Interactive conversation with BitNet LLM
-- 🖥️ **Clean GUI**: Minimalist Braun-inspired design
+- 🎤 **Optional Voice Transcription**: VOSK-based speech recognition (via Python GUI)
+- 🖥️ **Optional Python GUI**: Clean interface for voice and text (see `main.py`)
 - 🔒 **Offline Operation**: No cloud services required after initial setup
 - ⚡ **CPU Optimized**: Runs on standard laptops without GPU
-- 🧩 **Modular Architecture**: Clean separation of concerns for easy customization
+- 🧩 **Modular Architecture**: Multiple interface options for flexibility
 
 ## 📋 Requirements
 
@@ -50,34 +55,38 @@ This project combines two powerful components for VA deployment:
 
 ## 🚀 Quick Start (VA Workstation)
 
-### Automated Setup for Windows
+### For New VA Workstation (First Time Setup)
 
-1. **Clone the repository** (requires network access - one time only):
-   ```powershell
-   git clone --recursive https://github.com/cyber3pxVA/VAbitnetUI.git
+**Prerequisites**: Git with Git LFS installed (standard on most VA workstations)
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/cyber3pxVA/VAbitnetUI.git
    cd VAbitnetUI
    ```
 
-2. **Run the automated VA setup**:
-   ```powershell
-   .\scripts\setup_va_workstation.ps1
+2. **Run one-time setup**:
+   ```bash
+   SETUP.bat
    ```
    
-   This script will:
-   - ✅ Verify Visual Studio 2022 tools are installed
-   - ✅ Create Python virtual environment
-   - ✅ Install all Python dependencies
-   - ✅ Download VOSK model for offline speech recognition
-   - ✅ Build BitNet C++ inference engine
-   - ✅ Download BitNet 2.4B model via Git LFS
-   - ✅ Configure for offline operation
+   This downloads:
+   - Pre-built binaries (llama-server.exe - 4.6MB)
+   - BitNet model file (1.2GB via Git LFS)
+   - Takes 2-5 minutes depending on internet speed
 
 3. **Start the application**:
-   ```powershell
-   .\scripts\start_va_workstation.ps1
+   ```bash
+   START.bat
    ```
+   
+   - Launches BitNet server
+   - Opens web browser to http://127.0.0.1:8081
+   - Start chatting immediately!
 
-**⚠️ Important**: After initial setup, **NO internet connection is required**. All models, tools, and dependencies are self-contained.
+**That's it!** No Python needed, no Visual Studio, no build tools, no bullshit.
+
+**⚠️ Important**: After initial setup, **NO internet connection is required**. Everything runs 100% offline.
 
 ## 📖 Manual Installation (VA Workstation)
 
@@ -173,25 +182,33 @@ BITNET_CTX_SIZE=2048
 
 ## 🎮 Usage
 
-### Starting the Application
+### Starting the BitNet Server
 
-The application has two components that need to run:
+Start the BitNet backend server:
 
-1. **BitNet Backend Server** (runs automatically or manually):
-   ```bash
-   # Automatic (handled by start script)
-   
-   # Manual (for debugging)
-   cd bitnet_backend
-   python run_server.py -m models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf -p 8081
-   ```
+```bash
+cd bitnet_backend
+./build_mingw/bin/llama-server.exe -m models/bitnet_b1_58-large/ggml-model-i2_s.gguf --port 8081 --host 127.0.0.1 -c 2048 -t 4
+```
 
-2. **GUI Application**:
-   ```bash
-   python main.py
-   ```
+**The server provides a built-in web interface:**
+- Open your browser to: http://127.0.0.1:8081
+- Chat directly in the browser - no additional setup needed!
 
-### Voice Transcription Mode
+### Optional: Python GUI Application
+
+For voice transcription and desktop interface:
+
+```bash
+python main.py
+```
+
+The Python GUI provides:
+- Voice transcription via VOSK
+- Text chat interface
+- Settings management
+
+**Note**: The web UI is recommended for most users. The Python GUI is optional and primarily useful if you need voice transcription capabilities.
 
 1. Click **"Start Recording"** to begin capturing audio
 2. Speak clearly into your microphone

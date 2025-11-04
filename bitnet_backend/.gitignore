@@ -3,10 +3,10 @@
 *.a
 *.bat
 # *.bin - REMOVED SO MODEL FILES ARE INCLUDED
-*.dll
+# *.dll - REMOVED SO COMPILED BINARIES ARE INCLUDED
 *.dot
 *.etag
-*.exe
+# *.exe - REMOVED SO COMPILED BINARIES ARE INCLUDED
 *.gcda
 *.gcno
 *.gcov
@@ -45,7 +45,7 @@ __pycache__/
 poetry.toml
 
 build/
-build_*/
+# build_*/ - REMOVED SO COMPILED BINARIES IN build_mingw/ ARE INCLUDED
 tools/
 logs/
 # CRITICAL DOCUMENTATION - DO NOT IGNORE
