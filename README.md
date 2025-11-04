@@ -1,18 +1,234 @@
-# VAbitnetUI - BitNet 1.58-bit LLM for VA Workstations
+# VAbitnetUI - Local AI Chat for VA Workstations
 
-A complete offline-capable BitNet 1.58-bit LLM deployment for **Windows VA workstation environments**. Provides local AI inference with multiple interfaces (web UI, command line, and optional Python GUI) optimized for CPU-only operation with VHA-compliant portable tools.
+**⚠️ PROTOTYPE**: This is a proof-of-concept. It works, but it's early stage. If something breaks, let us know!
 
-## 🎯 Project Overview
+Run a 2.4B parameter AI language model **100% offline** on your VA laptop. No internet needed after setup, no cloud services, no data leaving your machine.
 
-This project provides Microsoft's BitNet 1.58-bit LLM inference engine with VHA-compliant toolchain for VA deployment.
+**What you get:**
+- Local AI chatbot in your web browser
+- Runs on CPU (no GPU needed)
+- Works on standard VA i5/i7 laptops
+- Completely offline after initial download
 
-**Primary Interface**: Built-in web UI at `http://127.0.0.1:8081` (accessed via browser)
+---
 
-**Optional Interfaces**:
-- Python GUI with voice transcription (VOSK-based speech recognition)
-- Command-line interface (`llama-cli.exe`)
+## 🚀 Setup (Takes 5 minutes)
 
-**Result**: A complete offline-capable AI assistant specifically optimized for VA Windows workstation environments using portable MinGW/MSVC toolchain.
+### What You Need
+- Windows 10/11 VA workstation
+- Git installed (check by typing `git --version` in terminal)
+- Internet connection (only for initial setup)
+- ~2GB free disk space
+
+### Step-by-Step
+
+**1. Download the code**
+
+Open Git Bash (or PowerShell) and copy-paste this:
+
+```bash
+git clone https://github.com/cyber3pxVA/VAbitnetUI.git
+cd VAbitnetUI
+```
+
+**What's happening:** Downloads all the files including a 1.2GB AI model. Takes 3-5 minutes on VA network.
+
+---
+
+**2. Verify everything downloaded**
+
+```bash
+SETUP.bat
+```
+
+**What's happening:** Just checks the files are there. Takes 30 seconds. You should see:
+- ✓ Git LFS is configured
+- ✓ Server binaries found
+- ✓ Model file found (1.2GB)
+
+**If you see errors here:** Stop and report what it says - something didn't download right.
+
+---
+
+**3. Start the AI server**
+
+```bash
+START.bat
+```
+
+**What's happening:** 
+- Launches `llama-server.exe` in background
+- Loads the 1.2GB model into memory (takes 15-20 seconds)
+- Opens your web browser to http://127.0.0.1:8081
+
+**You should see:** A chat interface in your browser after ~20 seconds.
+
+---
+
+**4. Test it out**
+
+Type something like:
+```
+What is the capital of France?
+```
+
+Press Enter. You should get a response in 2-3 seconds.
+
+**Normal behavior:**
+- First response takes longer (model is "warming up")
+- Speed: 5-15 words per second
+- Responses might be short or generic - this is a small model
+
+**If nothing happens:** See troubleshooting below.
+
+---
+
+## 🤔 If Something Doesn't Work
+
+**This is a prototype.** Here's what to check:
+
+### Server won't start
+- Check if `bitnet_backend/build_mingw/bin/llama-server.exe` exists
+- If missing, the binaries didn't download from Git
+- Let us know and we'll fix the repo
+
+### Model not found
+- Check if `bitnet_backend/models/bitnet_b1_58-large/ggml-model-i2_s.gguf` exists (should be 1.2GB)
+- If missing, run: `git lfs pull`
+- Git LFS might not be installed - run: `git lfs install`
+
+### Browser doesn't open
+- Manually go to: http://127.0.0.1:8081
+- Server might be running but browser didn't auto-open
+
+### Responses are slow or weird
+- This is a 2.4B parameter model - it's small and fast but not GPT-4
+- Expected speed: 5-15 words per second on i5/i7
+- Responses may be basic or repetitive - that's normal for this size model
+
+### Something else broke
+- **Give us feedback!** Open an issue on GitHub with:
+  - What you tried to do
+  - What error you got
+  - Your Windows version and CPU type (i5/i7)
+
+---
+
+## 📝 What This Actually Is
+
+**Technical Details:**
+- **Model**: Microsoft BitNet b1.58 (2.4B parameters, 1.58-bit quantized)
+- **Interface**: Web UI built into llama-server
+- **Backend**: C++ inference engine (llama.cpp with BitNet extensions)
+- **Speed**: ~7-15 tokens/sec on VA i7-1265U CPU
+- **Memory**: Uses ~1.4GB RAM
+
+**Optional Python GUI:**
+- There's also a Python GUI with voice transcription (VOSK)
+- Run `python main.py` if you want voice input
+- Requires Python 3.10+ and `pip install -r requirements.txt`
+- **Not needed for basic chat** - web UI is simpler
+
+---
+
+## 💡 Feedback & Issues
+
+**This is a prototype to prove VA workstations can run local AI.**
+
+If you try this and:
+- ✅ It works - tell us! We want to know what laptops it runs on
+- ❌ It breaks - tell us! We'll fix it
+- 🤔 You want different features - tell us! What would make this useful?
+
+**Open an issue on GitHub** with your feedback. Be specific:
+- "Worked great on i7 laptop"
+- "Setup failed at step X with error Y"
+- "Would be better if it could Z"
+
+---
+
+## 📚 For Developers
+
+**How it works:**
+- `SETUP.bat` - Verifies Git LFS pulled binaries and model
+- `START.bat` - Runs `llama-server.exe` with BitNet model
+- Server provides web UI at port 8081
+- Everything runs locally, no external connections
+
+**Key files:**
+- `bitnet_backend/build_mingw/bin/llama-server.exe` - Pre-built server (4.6MB)
+- `bitnet_backend/build_mingw/bin/libgomp-1.dll` - OpenMP library (280KB)
+- `bitnet_backend/models/bitnet_b1_58-large/ggml-model-i2_s.gguf` - Model (1.2GB)
+
+**Rebuilding from source:**
+- See `bitnet_backend/README.md` for build instructions
+- Requires MinGW-w64 + CMake
+- Takes 10-15 minutes to compile
+
+**Python GUI (optional):**
+- `main.py` - PyQt6 GUI with VOSK speech recognition
+- `requirements.txt` - Python dependencies
+- Not needed for basic functionality
+
+---
+
+## ⚠️ Limitations (Prototype)
+
+**This is proof-of-concept. Known issues:**
+- Model is small (2.4B) - responses are basic
+- No conversation history - each message is independent
+- No fine-tuning - generic responses, not VA-specific
+- No document search (RAG) - can't reference VA docs
+- Web UI is basic - no advanced features
+
+**What we'd need for production:**
+- Larger model (7B-13B parameters)
+- Fine-tuning on VA-specific data
+- RAG for searching VA documents
+- Better web interface
+- Evaluation and testing framework
+
+**But it proves the concept works!** VA laptops CAN run local AI offline.
+
+---
+
+## 🛠️ Quick Commands
+
+```bash
+# First time setup
+git clone https://github.com/cyber3pxVA/VAbitnetUI.git
+cd VAbitnetUI
+SETUP.bat
+START.bat
+
+# Every time after that
+START.bat
+
+# Stop the server
+# Just close the terminal window or press Ctrl+C
+
+# Optional Python GUI with voice
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
+```
+
+---
+
+## 📞 Contact & Contribution
+
+This is a VA proof-of-concept. Feedback welcome!
+
+**GitHub Issues**: https://github.com/cyber3pxVA/VAbitnetUI/issues
+
+**What helps us improve:**
+- Which VA laptop model you tested on
+- What worked / what didn't
+- What features would make this actually useful
+- Any security or compliance concerns
+
+Thanks for testing!
 
 ## ⚠️ VA Workstation Requirements
 
