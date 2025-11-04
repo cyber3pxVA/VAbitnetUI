@@ -10,6 +10,8 @@ ENV/
 *.egg-info/
 dist/
 build/
+# BUT allow pre-built BitNet binaries
+!bitnet_backend/build_mingw/bin/*.exe
 
 # PyQt
 *.qmlc
