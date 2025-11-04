@@ -20,7 +20,8 @@ echo.
 cd bitnet_backend
 
 REM Start the server in background
-start /B "BitNet Server" build_mingw\bin\llama-server.exe -m models\bitnet_b1_58-large\ggml-model-i2_s.gguf --port 8081 --host 127.0.0.1 -c 2048 -t 4
+REM -n 256 limits output to 256 tokens (~200 words). Adjust higher/lower as needed.
+start /B "BitNet Server" build_mingw\bin\llama-server.exe -m models\bitnet_b1_58-large\ggml-model-i2_s.gguf --port 8081 --host 127.0.0.1 -c 2048 -n 256 -t 4
 
 REM Wait for server to load
 timeout /t 15 /nobreak >nul
